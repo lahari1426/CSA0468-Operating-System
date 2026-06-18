@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <string.h>
+
+struct msg_buffer {
+    long msg_type;
+    char msg_text[100];
+};
+
+int main() {
+    int msgid;
+    struct msg_buffer message;
+
+    // Create message queue
+    msgid = msgget(1234, 0666 | IPC_CREAT);
+
+    // Sending message
+    message.msg_type = 1;
+    strcpy(message.msg_text, "Hello from Message Queue");
+
+    msgsnd(msgid, &message, sizeof(message.msg_text), 0);
+    printf("Message sent: %s\n", message.msg_text);
+
+    // Receiving message
+    msgrcv(msgid, &message, sizeof(message.msg_text), 1, 0);
+    printf("Message received: %s\n", message.msg_text);
+
+    // Destroy message queue
+    msgctl(msgid, IPC_RMID, NULL);
+
+    return 0;
+}
