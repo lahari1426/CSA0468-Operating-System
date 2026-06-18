@@ -1,0 +1,42 @@
+#include <stdio.h>
+
+int main() {
+    int n, tq, i;
+    int bt[10], rem[10];
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    printf("Enter burst times:\n");
+    for(i = 0; i < n; i++) {
+        scanf("%d", &bt[i]);
+        rem[i] = bt[i];
+    }
+
+    printf("Enter Time Quantum: ");
+    scanf("%d", &tq);
+
+    printf("Execution Order: ");
+
+    while(1) {
+        int done = 1;
+
+        for(i = 0; i < n; i++) {
+            if(rem[i] > 0) {
+                done = 0;
+
+                if(rem[i] > tq)
+                    rem[i] -= tq;
+                else
+                    rem[i] = 0;
+
+                printf("P%d ", i + 1);
+            }
+        }
+
+        if(done)
+            break;
+    }
+
+    return 0;
+}
