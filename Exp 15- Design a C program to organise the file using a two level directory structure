@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_SUBDIRS 10
+#define MAX_FILES 10
+#define NAME_LEN 50
+
+struct SubDirectory {
+    char name[NAME_LEN];
+    char files[MAX_FILES][NAME_LEN];
+    int file_count;
+};
+
+int main() {
+    struct SubDirectory dirs[MAX_SUBDIRS];
+    int dir_count = 0;
+    int choice;
+    char dirname[NAME_LEN], filename[NAME_LEN];
+    int i, j, found;
+
+    while(1) {
+        printf("\nTwo-Level Directory Menu:\n");
+        printf("1. Create Subdirectory\n2. Create File\n3. Display Files\n4. Search File\n5. Delete File\n6. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+            case 1: // Create Subdirectory
+                if(dir_count >= MAX_SUBDIRS) {
+                    printf("Maximum subdirectories reached!\n");
+                } else {
+                    printf("Enter subdirectory name: ");
+                    scanf("%s", dirname);
+                    strcpy(dirs[dir_count].name, dirname);
+                    dirs[dir_count].file_count = 0;
+                    dir_count++;
+                    printf("Subdirectory '%s' created.\n", dirname);
+                }
+                break;
+
+            case 2: // Create File
+                if(dir_count == 0) {
+                    printf("No subdirectories exist. Create one first.\n");
+                    break;
+                }
+                printf("Enter subdirectory name to add file: ");
+                scanf("%s", dirname);
+                found = -1;
+                for(i = 0; i < dir_count; i++) {
+                    if(strcmp(dirs[i].name, dirname) == 0) {
+                        found = i;
+                        break;
+                    }
+                }
+                if(found == -1) {
+                    printf("Subdirectory not found.\n");
+                } else {
+                    if(dirs[found].file_count >= MAX_FILES) {
+                        printf("Subdirectory full! Cannot create more files.\n");
+                    } else {
+                        printf("Enter file name to create: ");
+                        scanf("%s", filename);
+                        strcpy(dirs[found].files[dirs[found].file_count], filename);
+                        dirs[found].file_count++;
+                        printf("File '%s' created in '%s'.\n", filename, dirname);
+                    }
+                }
+                break;
+
+            case 3: // Display Files
+                for(i = 0; i < dir_count; i++) {
+                    printf("\nSubdirectory: %s\n", dirs[i].name);
+                    if(dirs[i].file_count == 0) {
+                        printf("  No files.\n");
+                    } else {
+                        for(j = 0; j < dirs[i].file_count; j++)
+                            printf("  %s\n", dirs[i].files[j]);
+                    }
+                }
+                break;
+
+            case 4: // Search File
+                printf("Enter file name to search: ");
+                scanf("%s", filename);
+                found = 0;
+                for(i = 0; i < dir_count; i++) {
+                    for(j = 0; j < dirs[i].file_count; j++) {
+                        if(strcmp(dirs[i].files[j], filename) == 0) {
+                            printf("File '%s' found in subdirectory '%s'.\n", filename, dirs[i].name);
+                            found = 1;
+                        }
+                    }
+                }
+                if(!found) printf("File '%s' not found.\n", filename);
+                break;
+
+            case 5: // Delete File
+                printf("Enter file name to delete: ");
+                scanf("%s", filename);
+                found = 0;
+                for(i = 0; i < dir_count; i++) {
+                    for(j = 0; j < dirs[i].file_count; j++) {
+                        if(strcmp(dirs[i].files[j], filename) == 0) {
+                            // Shift files
