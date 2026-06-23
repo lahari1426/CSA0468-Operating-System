@@ -1,0 +1,87 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_RECORDS 50
+#define RECORD_SIZE 50
+
+typedef struct {
+    char data[RECORD_SIZE];
+} Record;
+
+Record file[MAX_RECORDS];
+int recordCount = 0;
+
+// Function to insert a record (only at end)
+void insertRecord(char *data) {
+    if (recordCount >= MAX_RECORDS) {
+        printf("File is full. Cannot insert new record.\n");
+        return;
+    }
+    strcpy(file[recordCount].data, data);
+    recordCount++;
+    printf("Record inserted successfully.\n");
+}
+
+// Function to display all records
+void displayRecords() {
+    if (recordCount == 0) {
+        printf("File is empty.\n");
+        return;
+    }
+    printf("\nFile Records (Sequential Allocation):\n");
+    for (int i = 0; i < recordCount; i++) {
+        printf("Record %d → %s\n", i + 1, file[i].data);
+    }
+}
+
+// Function to access a specific record
+void accessRecord(int index) {
+    if (index <= 0 || index > recordCount) {
+        printf("Invalid record number.\n");
+        return;
+    }
+    printf("\nAccessing record %d requires reading all previous records:\n", index);
+    for (int i = 0; i < index; i++) {
+        printf("Record %d → %s\n", i + 1, file[i].data);
+    }
+}
+
+int main() {
+    int choice, index;
+    char buffer[RECORD_SIZE];
+
+    while (1) {
+        printf("\n--- Sequential File Allocation Simulation ---\n");
+        printf("1. Insert Record\n");
+        printf("2. Display All Records\n");
+        printf("3. Access a Record\n");
+        printf("4. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+        getchar(); // consume newline
+
+        switch (choice) {
+            case 1:
+                printf("Enter record data: ");
+                fgets(buffer, RECORD_SIZE, stdin);
+                buffer[strcspn(buffer, "\n")] = '\0'; // remove newline
+                insertRecord(buffer);
+                break;
+            case 2:
+                displayRecords();
+                break;
+            case 3:
+                printf("Enter record number to access: ");
+                scanf("%d", &index);
+                accessRecord(index);
+                break;
+            case 4:
+                exit(0);
+            default:
+                printf("Invalid choice.\n");
+        }
+    }
+
+    return 0;
+}
