@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+
+// Thread function
+void *threadFunc(void *arg) {
+    printf("Thread %lu: started, argument = %d\n", pthread_self(), *(int *)arg);
+
+    // Demonstrating pthread_exit
+    int *result = malloc(sizeof(int));
+    *result = (*(int *)arg) * 2;  // return value = double the input
+    pthread_exit((void *)result);
+}
+
+int main() {
+    pthread_t tid1, tid2;
+    int arg1 = 5, arg2 = 10;
+    int *res1, *res2;
+
+    // (i) pthread_create
+    if (pthread_create(&tid1, NULL, threadFunc, &arg1) != 0) {
+        perror("pthread_create");
+        exit(1);
+    }
+    if (pthread_create(&tid2, NULL, threadFunc, &arg2) != 0) {
+        perror("pthread_create");
+        exit(1);
+    }
+
+    // (ii) pthread_join
+    pthread_join(tid1, (void **)&res1);
+    pthread_join(tid2, (void **)&res2);
+
+    printf("Main: Thread %lu returned value = %d\n", tid1, *res1);
+    printf("Main: Thread %lu returned value = %d\n", tid2, *res2);
+
+    // (iii) pthread_equal
+    if (pthread_equal(tid1, tid2))
+        printf("Threads are equal\n");
+    else
+        printf("Threads are NOT equal\n");
+
+    // Free allocated memory
+    free(res1);
+    free(res2);
+
+    printf("Main: exiting program.\n");
+    return 0;
+}
