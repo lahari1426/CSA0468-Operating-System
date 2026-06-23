@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int cmp(const void *a,const void *b){ return *(int*)a - *(int*)b; }
+
+int main(){
+    int n, head, disk_size, i, seek=0, index=0;
+    printf("Enter number of requests: "); scanf("%d",&n);
+    int req[n]; 
+    printf("Enter request queue: "); 
+    for(i=0;i<n;i++) scanf("%d",&req[i]);
+    printf("Enter initial head position: "); scanf("%d",&head);
+    printf("Enter disk size: "); scanf("%d",&disk_size);
+
+    qsort(req,n,sizeof(int),cmp);
+
+    // find first request greater than head
+    for(i=0;i<n;i++){ if(req[i]>=head){ index=i; break; } }
+
+    // move right first
+    for(i=index;i<n;i++){ seek+=abs(req[i]-head); head=req[i]; }
+    // jump to start
+    if(index>0){ seek+=abs((disk_size-1)-head); head=0; seek+=req[0]-head; head=req[0]; }
+    // continue servicing remaining
+    for(i=1;i<index;i++){ seek+=abs(req[i]-head); head=req[i]; }
+
+    printf("Total head movement = %d\n",seek);
+    printf("Average seek time = %.2f\n",(float)seek/n);
+    return 0;
+}
