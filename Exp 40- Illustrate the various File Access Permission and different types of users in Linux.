@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+    char filename[50];
+    char owner[20];
+    char group[20];
+    int perm_owner;  // numeric: r=4, w=2, x=1
+    int perm_group;
+    int perm_others;
+} File;
+
+// Function to display permissions
+void display_permissions(int perm) {
+    printf("%c", (perm & 4) ? 'r' : '-');
+    printf("%c", (perm & 2) ? 'w' : '-');
+    printf("%c", (perm & 1) ? 'x' : '-');
+}
+
+// Function to check user access
+void check_access(File f, char user[20], char grp[20]) {
+    int perm = 0;
+    if(strcmp(user, f.owner) == 0) perm = f.perm_owner;
+    else if(strcmp(grp, f.group) == 0) perm = f.perm_group;
+    else perm = f.perm_others;
+
+    printf("User '%s' (Group: %s) permissions on '%s': ", user, grp, f.filename);
+    display_permissions(perm);
+    printf("\n");
+}
+
+int main() {
+    // Simulate a file
+    File f1 = {"file.txt", "alice", "devs", 7, 5, 4}; 
+    // 7=rwx (owner), 5=r-x (group), 4=r-- (others)
+
+    printf("File: %s\nOwner: %s\nGroup: %s\n\n", f1.filename, f1.owner, f1.group);
+
+    // Check permissions for different users
+    check_access(f1, "alice", "devs");      // Owner
+    check_access(f1, "bob", "devs");        // Group member
+    check_access(f1, "charlie", "users");   // Others
+
+    return 0;
+}
