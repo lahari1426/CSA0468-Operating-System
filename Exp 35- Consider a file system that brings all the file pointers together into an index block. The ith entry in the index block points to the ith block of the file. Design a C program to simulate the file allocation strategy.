@@ -1,0 +1,107 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_BLOCKS 50
+#define BLOCK_SIZE 50
+
+typedef struct {
+    char data[BLOCK_SIZE];
+} Block;
+
+Block disk[MAX_BLOCKS];     // simulated disk blocks
+int indexBlock[MAX_BLOCKS]; // stores block numbers of the file
+int fileSize = 0;           // number of blocks allocated to file
+
+// Function to allocate a new block
+int allocateBlock() {
+    for (int i = 0; i < MAX_BLOCKS; i++) {
+        if (disk[i].data[0] == '\0') { // empty block
+            return i;
+        }
+    }
+    return -1; // no free block
+}
+
+// Function to insert a block in file
+void insertBlock(char *data) {
+    if (fileSize >= MAX_BLOCKS) {
+        printf("File is full. Cannot insert new block.\n");
+        return;
+    }
+
+    int blockNum = allocateBlock();
+    if (blockNum == -1) {
+        printf("No free blocks available on disk.\n");
+        return;
+    }
+
+    strcpy(disk[blockNum].data, data);
+    indexBlock[fileSize] = blockNum;
+    fileSize++;
+    printf("Block inserted at disk block %d successfully.\n", blockNum);
+}
+
+// Function to display the file using index block
+void displayFile() {
+    if (fileSize == 0) {
+        printf("File is empty.\n");
+        return;
+    }
+
+    printf("\nFile Content (Using Indexed Allocation):\n");
+    for (int i = 0; i < fileSize; i++) {
+        int blockNum = indexBlock[i];
+        printf("Block %d (Disk %d) → %s\n", i + 1, blockNum, disk[blockNum].data);
+    }
+}
+
+// Function to access a specific block
+void accessBlock(int i) {
+    if (i <= 0 || i > fileSize) {
+        printf("Invalid block number.\n");
+        return;
+    }
+
+    int blockNum = indexBlock[i - 1];
+    printf("Accessing Block %d → Disk Block %d → %s\n", i, blockNum, disk[blockNum].data);
+}
+
+int main() {
+    int choice, blockNum;
+    char buffer[BLOCK_SIZE];
+
+    while (1) {
+        printf("\n--- Indexed File Allocation Simulation ---\n");
+        printf("1. Insert Block\n");
+        printf("2. Display File\n");
+        printf("3. Access a Block\n");
+        printf("4. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+        getchar(); // consume newline
+
+        switch (choice) {
+            case 1:
+                printf("Enter block data: ");
+                fgets(buffer, BLOCK_SIZE, stdin);
+                buffer[strcspn(buffer, "\n")] = '\0'; // remove newline
+                insertBlock(buffer);
+                break;
+            case 2:
+                displayFile();
+                break;
+            case 3:
+                printf("Enter block number to access: ");
+                scanf("%d", &blockNum);
+                accessBlock(blockNum);
+                break;
+            case 4:
+                exit(0);
+            default:
+                printf("Invalid choice.\n");
+        }
+    }
+
+    return 0;
+}
